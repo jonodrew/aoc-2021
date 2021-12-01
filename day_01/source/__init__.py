@@ -2,7 +2,7 @@ import itertools
 from typing import Generator
 
 
-def cast_data_to_int(datastream):
+def cast_data_to_int(datastream: Generator[int, None, None]):
     for datum in datastream:
         yield int(datum)
 
@@ -17,10 +17,6 @@ def compare_measurements(measurements: Generator[int, None, None]):
     return larger_than_previous
 
 
-def solve_part_one(data_stream: Generator[int, None, None]):
-    return compare_measurements(data_stream)
-
-
 def generate_three_measurements(data_generator: Generator[int, None, None]) -> Generator[int, None, None]:
     previous_window = iter((0, data_generator.__next__(), data_generator.__next__()))
     for value in data_generator:
@@ -28,7 +24,3 @@ def generate_three_measurements(data_generator: Generator[int, None, None]) -> G
             itertools.chain(itertools.islice(previous_window, 1, 3), [value]), 2)
         yield sum(summable_window)
         previous_window = current_window
-
-
-def solve_part_two(data_stream: Generator[int, None, None]):
-    return compare_measurements(chunk for chunk in generate_three_measurements(data_stream))
