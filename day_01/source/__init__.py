@@ -38,9 +38,10 @@ def compare_measurements(measurements: Generator[int, None, None]) -> int:
     :param measurements:
     :return:
     """
-    first, second = itertools.tee(measurements, 2)
-    comparisons = zip(first, itertools.islice(second, 1, None, None))
-    return len([comparison for comparison in comparisons if comparison[1] > comparison[0]])
+    comparisons = multiply_and_zip_with_offset(measurements, 2)
+    return len(
+        [comparison for comparison in comparisons if comparison[1] > comparison[0]]
+    )
 
 
 def generate_three_measurements(data_generator: Generator[int, None, None]) -> Generator[int, None, None]:
@@ -51,7 +52,6 @@ def generate_three_measurements(data_generator: Generator[int, None, None]) -> G
     :param data_generator:
     :return:
     """
-    first, second, third = itertools.tee(data_generator, 3)
-    windows = zip(first, itertools.islice(second, 1, None, None), itertools.islice(third, 2, None, None))
+    windows = multiply_and_zip_with_offset(data_generator, 3)
     for window in windows:
         yield sum(window)
