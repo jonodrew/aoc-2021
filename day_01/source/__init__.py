@@ -1,5 +1,5 @@
 import itertools
-from typing import Generator
+from typing import Generator, Any
 
 
 def cast_data_to_int(datastream: Generator[str, None, None]) -> Generator[int, None, None]:
@@ -10,6 +10,24 @@ def cast_data_to_int(datastream: Generator[str, None, None]) -> Generator[int, N
     """
     for datum in datastream:
         yield int(datum)
+
+
+def multiply_and_zip_with_offset(
+    generator: Generator[Any, None, None], copies: int
+) -> Generator[tuple[Any, Any, Any], None, None]:
+    """
+    This function takes a generator and clones it `copies` times. Then it zips the clones together with an offset of 1.
+    For example, if the data_generator yielded (1, 2, 3, 4) and `copies` was 3, this would generate
+    ((1, 2, 3), (2, 3, 4), (3, 4, 5), (4, 5, 6))
+    :param generator:
+    :param copies:
+    :return:
+    """
+    copies = itertools.tee(generator, copies)
+    for zipped in zip(
+        *(itertools.islice(copy, i, None, None) for i, copy in enumerate(copies))
+    ):
+        yield zipped
 
 
 def compare_measurements(measurements: Generator[int, None, None]) -> int:
