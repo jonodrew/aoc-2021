@@ -1,6 +1,11 @@
 import pytest
 
-from day_01.source import cast_data_to_int, generate_three_measurements, compare_measurements
+from day_01.source import (
+    cast_data_to_int,
+    generate_three_measurements,
+    compare_measurements,
+    multiply_and_zip_with_offset,
+)
 from helpers import current_path, stream_data
 
 
@@ -18,7 +23,16 @@ def test_sonar_solve(test_data_stream):
 
 
 def test_chunking(test_data_stream):
-    assert list(generate_three_measurements(test_data_stream)) == [607, 618, 618, 617, 647, 716, 769, 792]
+    assert list(generate_three_measurements(test_data_stream)) == [
+        607,
+        618,
+        618,
+        617,
+        647,
+        716,
+        769,
+        792,
+    ]
 
 
 def test_part_two(test_data_stream):

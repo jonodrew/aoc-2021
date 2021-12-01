@@ -2,7 +2,9 @@ import itertools
 from typing import Generator, Any
 
 
-def cast_data_to_int(datastream: Generator[str, None, None]) -> Generator[int, None, None]:
+def cast_data_to_int(
+    datastream: Generator[str, None, None]
+) -> Generator[int, None, None]:
     """
     This function takes a stream of strings and converts them into integers
     :param datastream:
@@ -32,9 +34,8 @@ def multiply_and_zip_with_offset(
 
 def compare_measurements(measurements: Generator[int, None, None]) -> int:
     """
-    This function takes a stream of integers and duplicates it. Then it runs the two together with an offset of 1,
-    producing a stream of tuples that can then be compared with each other. Finally, it counts the number of times the
-    second item in the tuple is larger than the first
+    This function takes a stream of integers and duplicates it. Finally, it counts the number of times the second item
+    in the tuple is larger than the first
     :param measurements:
     :return:
     """
@@ -44,7 +45,9 @@ def compare_measurements(measurements: Generator[int, None, None]) -> int:
     )
 
 
-def generate_three_measurements(data_generator: Generator[int, None, None]) -> Generator[int, None, None]:
+def generate_three_measurements(
+    data_generator: Generator[int, None, None]
+) -> Generator[int, None, None]:
     """
     This function takes a stream of integers and copies it three times. It then zips them together with an offset of 1
     and 2 respectively, giving a tuple of three items. For example, if the data_generator yielded (1, 2, 3, 4) this
