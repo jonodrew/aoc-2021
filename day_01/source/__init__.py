@@ -1,5 +1,5 @@
 import itertools
-from typing import Generator, Any
+from typing import Generator, Any, Tuple
 
 
 def cast_data_to_int(
@@ -16,7 +16,7 @@ def cast_data_to_int(
 
 def multiply_and_zip_with_offset(
     generator: Generator[Any, None, None], copies: int
-) -> Generator[tuple[Any, Any, Any], None, None]:
+) -> Generator[Tuple[Any, Any, Any], None, None]:
     """
     This function takes a generator and clones it `copies` times. Then it zips the clones together with an offset of 1.
     For example, if the data_generator yielded (1, 2, 3, 4) and `copies` was 3, this would generate

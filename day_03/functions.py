@@ -38,14 +38,13 @@ def gamma_rate(data_stream: Generator[str, None, None]) -> str:
     return "".join(map(commonest_bit, generate_new_numbers(data_stream)))
 
 
-def epsilon_rate(gamma_rate: str) -> str:
-    return "".join(map(flip_bit, gamma_rate))
+def epsilon_rate(gamma_value: str) -> str:
+    return "".join(map(flip_bit, gamma_value))
 
 
-def solve_part_one(
-    gamma_rate: str, convert_gamma_to_epsilon: Callable[[str], str]
-) -> int:
-    return int(gamma_rate, 2) * int(convert_gamma_to_epsilon(gamma_rate), 2)
+def solve_part_one(data_stream: Generator[str, None, None]) -> int:
+    gamma_value = gamma_rate(data_stream)
+    return int(gamma_value, 2) * int(epsilon_rate(gamma_value), 2)
 
 
 def recursive_find_rating(
