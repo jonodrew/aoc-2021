@@ -4,6 +4,13 @@ from typing import Generator, Callable, Iterator
 
 
 def word_at_index(data_stream: Iterator[str], index: int) -> str:
+    """
+    This function iterates through an entire iterator of strings. It returns only the characters at position `index` as
+    a new string
+    :param data_stream:
+    :param index:
+    :return:
+    """
     return "".join((word[index] for word in data_stream))
 
 
@@ -17,10 +24,15 @@ def commonest_bit(new_word: str, bit_if_equal: str = "1") -> str:
     if new_word.count("0") == new_word.count("1"):
         return bit_if_equal
     else:
-        return "0" if sorted_word.count("0") > sorted_word.count("1") else "1"
+        return "0" if new_word.count("0") > new_word.count("1") else "1"
 
 
 def least_common_bit(word: str) -> str:
+    """
+    This function returns the least common bit. This is done by finding the most common bit, and then flipping it
+    :param word:
+    :return:
+    """
     return flip_bit(commonest_bit(word))
 
 
