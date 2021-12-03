@@ -1,6 +1,8 @@
 import functools
 import itertools
-from typing import Generator, Callable, Iterator, List
+from typing import Generator, Callable, Iterator
+
+from helpers import iterator_length
 
 
 def word_at_index(data_stream: Iterator[str], index: int) -> str:
@@ -71,9 +73,9 @@ def recursive_find_rating(
 ):
     words_to_search, words_for_bit_search = itertools.tee(words_to_search, 2)
     bit_to_find = bit_to_find_function(word_at_index(words_for_bit_search, iteration))
-    new_words = [word for word in words_to_search if word[iteration] == bit_to_find]
-    if len(new_words) == 1:
-        return new_words[0]
+    new_words, length_iterator = itertools.tee(filter(lambda word: word[iteration] == bit_to_find, words_to_search), 2)
+    if iterator_length(length_iterator) == 1:
+        return new_words.__next__()
     iteration += 1
     return recursive_find_rating(iter(new_words), bit_to_find_function, iteration)
 

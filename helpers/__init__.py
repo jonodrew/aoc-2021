@@ -1,5 +1,5 @@
 import os
-from typing import Generator
+from typing import Generator, Iterator, Any
 
 
 def current_path(filename=__file__) -> str:
@@ -13,3 +13,11 @@ def stream_data(filepath) -> Generator[str, None, None]:
         lines = data_file.read().splitlines()
         for line in lines:
             yield line
+
+
+def iterator_length(iterator_of_unknown_length: Iterator[Any]) -> int:
+    try:
+        iterator_of_unknown_length.__next__()
+    except StopIteration:
+        return 0
+    return 1 + iterator_length(iterator_of_unknown_length)
