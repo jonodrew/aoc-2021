@@ -8,8 +8,13 @@ def word_at_index(data_stream: Iterator[str], index: int) -> str:
 
 
 def commonest_bit(new_word: str, bit_if_equal: str = "1") -> str:
-    sorted_word = sorted(new_word)
-    if sorted_word.count("0") == sorted_word.count("1"):
+    """
+    This function takes a binary word and finds the most common value. It does this with `.count`, a method for strings
+    :param new_word:
+    :param bit_if_equal:
+    :return:
+    """
+    if new_word.count("0") == new_word.count("1"):
         return bit_if_equal
     else:
         return "0" if sorted_word.count("0") > sorted_word.count("1") else "1"
