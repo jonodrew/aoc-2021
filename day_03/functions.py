@@ -45,7 +45,7 @@ def flip_bit(bit: str) -> str:
 def generate_new_numbers(
     data_stream: Generator[str, None, None]
 ) -> Generator[str, None, None]:
-    new_words = [[letter] for letter in data_stream.__next__()]
+    new_words = [[letter] for letter in next(data_stream)]
     for word in data_stream:
         for i, letter in enumerate(word):
             new_words[i].append(letter)
@@ -75,7 +75,7 @@ def recursive_find_rating(
     bit_to_find = bit_to_find_function(word_at_index(words_for_bit_search, iteration))
     new_words, length_iterator = itertools.tee(filter(lambda word: word[iteration] == bit_to_find, words_to_search), 2)
     if iterator_length(length_iterator) == 1:
-        return new_words.__next__()
+        return next(new_words)
     iteration += 1
     return recursive_find_rating(iter(new_words), bit_to_find_function, iteration)
 

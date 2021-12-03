@@ -17,7 +17,7 @@ def stream_data(filepath) -> Generator[str, None, None]:
 
 def iterator_length(iterator_of_unknown_length: Iterator[Any]) -> int:
     try:
-        iterator_of_unknown_length.__next__()
+        next(iterator_of_unknown_length)
     except StopIteration:
         return 0
     return 1 + iterator_length(iterator_of_unknown_length)
