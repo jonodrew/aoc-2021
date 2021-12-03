@@ -1,6 +1,6 @@
 import functools
 import itertools
-from typing import Generator, Callable, Iterator
+from typing import Generator, Callable, Iterator, List
 
 
 def word_at_index(data_stream: Iterator[str], index: int) -> str:
@@ -69,16 +69,13 @@ def recursive_find_rating(
     bit_to_find_function: Callable[[str], str],
     iteration: int = 0,
 ):
-    old_words, check_words = itertools.tee(words_to_search, 2)
-    bit_to_find = bit_to_find_function(word_at_index(old_words, iteration))
-    new_words, check_words = itertools.tee(
-        filter(lambda x: x[iteration] == bit_to_find, check_words)
-    )
-    list_check_words = list(check_words)
-    if len(list_check_words) == 1:
-        return list_check_words[0]
+    words_to_search, words_for_bit_search = itertools.tee(words_to_search, 2)
+    bit_to_find = bit_to_find_function(word_at_index(words_for_bit_search, iteration))
+    new_words = [word for word in words_to_search if word[iteration] == bit_to_find]
+    if len(new_words) == 1:
+        return new_words[0]
     iteration += 1
-    return recursive_find_rating(new_words, bit_to_find_function, iteration)
+    return recursive_find_rating(iter(new_words), bit_to_find_function, iteration)
 
 
 def solve_part_two(data_stream: Generator[str, None, None]) -> int:
