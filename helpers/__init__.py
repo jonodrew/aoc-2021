@@ -1,5 +1,6 @@
+import itertools
 import os
-from typing import Generator, Iterator, Any
+from typing import Generator, Iterator, Any, Callable, Tuple
 
 
 def current_path(filename=__file__) -> str:
@@ -21,3 +22,15 @@ def iterator_length(iterator_of_unknown_length: Iterator[Any]) -> int:
     except StopIteration:
         return 0
     return 1 + iterator_length(iterator_of_unknown_length)
+
+
+def partition(iterator: Iterator[Any], predicate: Callable[[...], bool]) -> Tuple[Iterator, Iterator]:
+    """
+    This function returns two Iterators. The first is the items from `generator` that are false, and the second those
+    that are true
+    :param iterator:
+    :param predicate:
+    :return:
+    """
+    t1, t2 = itertools.tee(iterator)
+    return itertools.filterfalse(predicate, t1), filter(predicate, t2)
