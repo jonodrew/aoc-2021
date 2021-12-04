@@ -14,17 +14,17 @@ def line():
 
 @pytest.fixture
 def column(line):
-    return (Value(v.number, v.col, v.board, v.number) for v in line)
+    return (Value(v.number, v.col, v.board, v.number, True) for v in line)
 
 
 @pytest.fixture
 def row(line):
-    return (Value(v.row, v.number, v.board, v.number) for v in line)
+    return (Value(v.row, v.number, v.board, v.number, True) for v in line)
 
 
 @pytest.fixture
 def diagonal():
-    return (Value(i, i, 0, i) for i in range(5))
+    return (Value(i, i, 0, i, True) for i in range(5))
 
 
 @pytest.fixture

@@ -24,13 +24,13 @@ def iterator_length(iterator_of_unknown_length: Iterator[Any]) -> int:
     return 1 + iterator_length(iterator_of_unknown_length)
 
 
-def partition(iterator: Iterator[Any], predicate: Callable[[...], bool]) -> Tuple[Iterator, Iterator]:
+def partition(predicate: Callable[[...], bool], iterator: Iterator[Any]) -> Tuple[Iterator, Iterator]:
     """
-    This function returns two Iterators. The first is the items from `generator` that are false, and the second those
-    that are true
+    This function returns two Iterators. The first is the items from `generator` that are true, and the second those
+    that are false
     :param iterator:
     :param predicate:
     :return:
     """
     t1, t2 = itertools.tee(iterator)
-    return itertools.filterfalse(predicate, t1), filter(predicate, t2)
+    return filter(predicate, t2), itertools.filterfalse(predicate, t1)
