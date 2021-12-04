@@ -24,7 +24,7 @@ def iterator_length(iterator_of_unknown_length: Iterator[Any]) -> int:
     return 1 + iterator_length(iterator_of_unknown_length)
 
 
-def partition(predicate: Callable[[...], bool], iterator: Iterator[Any]) -> Tuple[Iterator, Iterator]:
+def partition(predicate: Callable[[Iterator], bool], iterator: Iterator[Any]) -> Tuple[Iterator, Iterator]:
     """
     This function returns two Iterators. The first is the items from `generator` that are true, and the second those
     that are false

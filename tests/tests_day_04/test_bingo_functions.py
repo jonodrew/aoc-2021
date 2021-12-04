@@ -1,8 +1,9 @@
 from day_04.bingo_functions import (
     parse_data,
     Value,
-    check_all_lines,
     solve_bingo_part_one,
+    solve_bingo_part_two,
+    check_lines_in_one_direction,
 )
 import pytest
 
@@ -23,8 +24,11 @@ def row(line):
 
 
 @pytest.fixture
-def diagonal():
-    return (Value(i, i, 0, i, True) for i in range(5))
+def incomplete_line(column):
+    return (
+        Value(v.row, v.col, v.board, v.number, False) if v.number == 2 else v
+        for v in column
+    )
 
 
 @pytest.fixture
@@ -67,12 +71,19 @@ def test_parse_data(test_data):
 
 
 @pytest.mark.parametrize(
-    "line_values, expected", [("row", True), ("column", True), ("diagonal", False)]
+    "line_values, direction, expected",
+    [("row", "row", True), ("column", "col", True), ("incomplete_line", "col", False)],
 )
-def test_check_all_lines(line_values, expected, request):
-    assert check_all_lines(request.getfixturevalue(line_values)) is expected
+def test_check_all_lines(line_values, direction, expected, request):
+    assert (
+        check_lines_in_one_direction(request.getfixturevalue(line_values), direction)
+        is expected
+    )
 
 
 def test_solve_part_one(test_data):
     assert solve_bingo_part_one(test_data) == 4512
 
+
+def test_solve_part_two(test_data):
+    assert solve_bingo_part_two(test_data) == 1924
