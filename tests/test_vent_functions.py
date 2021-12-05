@@ -1,3 +1,5 @@
+import functools
+
 import pytest
 
 from day_05.vent_functions import *

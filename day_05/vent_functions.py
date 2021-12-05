@@ -21,15 +21,18 @@ def change_in_y_and_x(line: LineSegment) -> Tuple[float, float]:
     return (line.end.y - line.start.y),  (line.end.x - line.start.x)
 
 
-def feed_data(file_path) -> Iterator[LineSegment]:
+def feed_data(file_path, exclude_diagonals: bool = True) -> Iterator[LineSegment]:
     with open(file_path, "r") as vector_file:
         for line in vector_file.read().splitlines():
             line_segment = parse_datum(line)
-            if not_diagonal(line_segment):
+            if exclude_diagonals:
+                if vertical_or_horizontal(line_segment):
+                    yield line_segment
+            else:
                 yield line_segment
 
 
-def not_diagonal(line: LineSegment) -> bool:
+def vertical_or_horizontal(line: LineSegment) -> bool:
     return line.start.x == line.end.x or line.start.y == line.end.y
 
 
@@ -64,14 +67,20 @@ def find_points_that_occur_multiple_times(all_points: Iterator):
 
 
 def get_next_point(old_point: Point, gradient: Tuple[float, float]) -> Point:
+    if any(map(lambda delta: delta == 0, gradient)):
+        return deal_with_horizontal_or_vertical(old_point, gradient)
+    else:
+        steps = map(lambda x: x // abs(x), gradient)
+        return Point(y=old_point.y + next(steps), x=old_point.x + next(steps))
+
+
+def deal_with_horizontal_or_vertical(old_point: Point, gradient: Tuple[float, float]) -> Point:
     direction = get_direction(gradient)
     y_delta, x_delta = gradient
     if y_delta == 0:  # horizontal
         return Point(x=old_point.x + direction, y=old_point.y)
     elif x_delta == 0:  # vertical
         return Point(x=old_point.x, y=old_point.y + direction)
-    else:
-        raise ValueError
 
 
 def get_direction(gradient: Tuple[float, float]) -> float:
@@ -95,4 +104,5 @@ def solve_part_one(file_path: str):
 
 
 def solve_part_two(file_path: str):
-    return 0
+    return find_points_that_occur_multiple_times(generate_all_points_on_grid(
+        feed_data(file_path, exclude_diagonals=False)))
