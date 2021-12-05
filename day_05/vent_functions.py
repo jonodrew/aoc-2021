@@ -21,15 +21,10 @@ def change_in_y_and_x(line: LineSegment) -> Tuple[float, float]:
     return (line.end.y - line.start.y),  (line.end.x - line.start.x)
 
 
-def feed_data(file_path, exclude_diagonals: bool = True) -> Iterator[LineSegment]:
+def feed_data(file_path) -> Iterator[LineSegment]:
     with open(file_path, "r") as vector_file:
         for line in vector_file.read().splitlines():
-            line_segment = parse_datum(line)
-            if exclude_diagonals:
-                if vertical_or_horizontal(line_segment):
-                    yield line_segment
-            else:
-                yield line_segment
+            yield parse_datum(line)
 
 
 def vertical_or_horizontal(line: LineSegment) -> bool:
@@ -83,9 +78,10 @@ def get_next_step(delta: float) -> float:
 
 
 def solve_part_one(file_path: str):
-    return find_points_that_occur_multiple_times(generate_all_points_on_grid(feed_data(file_path)))
+    return find_points_that_occur_multiple_times(generate_all_points_on_grid(filter(vertical_or_horizontal,
+                                                                                    feed_data(file_path))))
 
 
 def solve_part_two(file_path: str):
     return find_points_that_occur_multiple_times(generate_all_points_on_grid(
-        feed_data(file_path, exclude_diagonals=False)))
+        feed_data(file_path)))
