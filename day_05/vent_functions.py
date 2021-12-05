@@ -67,11 +67,8 @@ def find_points_that_occur_multiple_times(all_points: Iterator):
 
 
 def get_next_point(old_point: Point, gradient: Tuple[float, float]) -> Point:
-    if any(map(lambda delta: delta == 0, gradient)):
-        return deal_with_horizontal_or_vertical(old_point, gradient)
-    else:
-        steps = map(lambda x: x // abs(x), gradient)
-        return Point(y=old_point.y + next(steps), x=old_point.x + next(steps))
+    steps = map(get_next_step, gradient)
+    return Point(y=old_point.y + next(steps), x=old_point.x + next(steps))
 
 
 def deal_with_horizontal_or_vertical(old_point: Point, gradient: Tuple[float, float]) -> Point:
@@ -81,6 +78,14 @@ def deal_with_horizontal_or_vertical(old_point: Point, gradient: Tuple[float, fl
         return Point(x=old_point.x + direction, y=old_point.y)
     elif x_delta == 0:  # vertical
         return Point(x=old_point.x, y=old_point.y + direction)
+
+
+def get_next_step(delta: float) -> float:
+    try:
+        step = delta // abs(delta)
+    except ZeroDivisionError:
+        step = 0
+    return step
 
 
 def get_direction(gradient: Tuple[float, float]) -> float:
