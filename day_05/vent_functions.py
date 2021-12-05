@@ -45,8 +45,11 @@ def construct_point_from_string(coords_string="") -> Point:
 
 
 def parse_datum(vector_line: str) -> LineSegment:
-    groups = re.match(r"(\d+,\d+)\D+(\d+,\d+)", vector_line).groups()
-    return construct_line_segment_from_string_points(*groups)
+    matches = re.match(r"(\d+,\d+)\D+(\d+,\d+)", vector_line)
+    if matches is not None:
+        return construct_line_segment_from_string_points(*matches.groups())
+    else:
+        raise ValueError
 
 
 def generate_all_integer_points_on_line(line: LineSegment) -> Iterator[Point]:
