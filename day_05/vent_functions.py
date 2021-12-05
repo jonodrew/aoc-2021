@@ -63,7 +63,7 @@ def find_points_that_occur_multiple_times(all_points: Iterator):
     return len(list(filter(lambda x: x > 1, collections.Counter(all_points).values())))
 
 
-def get_next_point(old_point: Point, gradient: Tuple[float, float], c_value: float = 0.0) -> Point:
+def get_next_point(old_point: Point, gradient: Tuple[float, float]) -> Point:
     direction = get_direction(gradient)
     y_delta, x_delta = gradient
     if y_delta == 0:  # horizontal
