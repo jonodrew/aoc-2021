@@ -1,5 +1,3 @@
-import functools
-
 import pytest
 
 from day_05.vent_functions import *
@@ -20,4 +18,13 @@ def test_generate_all_integer_points(string_to_parse, partial_coord, partial_val
     kwargs = {partial_coord: partial_value}
     half_point = functools.partial(Point, **kwargs)
     remaining_coord = "x" if partial_coord == "y" else "y"
-    assert set(generate_all_integer_points(line)) == set(map(lambda x: half_point(**{remaining_coord: x}), (i for i in range(range_from, range_to))))
+    assert set(generate_all_integer_points_on_line(line)) == set(
+        map(lambda x: half_point(**{remaining_coord: x}), (i for i in range(range_from, range_to))))
+
+
+def test_find_points_that_occur_multiple_times():
+    assert solve_part_one("test_data_05.txt") == 5
+
+
+def test_solve_part_two():
+    assert solve_part_two("test_data_05.txt") == 12

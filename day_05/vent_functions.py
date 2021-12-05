@@ -1,3 +1,5 @@
+import collections
+import itertools
 import re
 from dataclasses import dataclass
 from typing import Tuple, Iterator
@@ -19,12 +21,12 @@ def change_in_y_and_x(line: LineSegment) -> Tuple[float, float]:
     return (line.end.y - line.start.y),  (line.end.x - line.start.x)
 
 
-def feed_data(file_path) -> Iterator[str]:
+def feed_data(file_path) -> Iterator[LineSegment]:
     with open(file_path, "r") as vector_file:
         for line in vector_file.read().splitlines():
-            line = construct_line_segment_from_string_points(parse_datum(line))
-            if not_diagonal(line):
-                yield line
+            line_segment = parse_datum(line)
+            if not_diagonal(line_segment):
+                yield line_segment
 
 
 def not_diagonal(line: LineSegment) -> bool:
@@ -44,13 +46,21 @@ def parse_datum(vector_line: str) -> LineSegment:
     return construct_line_segment_from_string_points(*groups)
 
 
-def generate_all_integer_points(line: LineSegment) -> Iterator[Point]:
+def generate_all_integer_points_on_line(line: LineSegment) -> Iterator[Point]:
     gradient = change_in_y_and_x(line)
     new_point = line.start
     while new_point != line.end:
         yield new_point
         new_point = get_next_point(new_point, gradient)
     yield line.end
+
+
+def generate_all_points_on_grid(all_lines: Iterator[LineSegment]) -> Iterator[Point]:
+    return itertools.chain(*map(generate_all_integer_points_on_line, all_lines))
+
+
+def find_points_that_occur_multiple_times(all_points: Iterator):
+    return len(list(filter(lambda x: x > 1, collections.Counter(all_points).values())))
 
 
 def get_next_point(old_point: Point, gradient: Tuple[float, float], c_value: float = 0.0) -> Point:
@@ -78,3 +88,11 @@ def change_y(old_point: Point, gradient: float) -> Point:
 
 def change_x(old_point: Point, gradient: float) -> Point:
     return Point(old_point.x + int(gradient), old_point.y)
+
+
+def solve_part_one(file_path: str):
+    return find_points_that_occur_multiple_times(generate_all_points_on_grid(feed_data(file_path)))
+
+
+def solve_part_two(file_path: str):
+    return 0
