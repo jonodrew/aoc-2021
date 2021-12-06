@@ -61,7 +61,7 @@ def generate_all_points_on_grid(all_lines: Iterator[LineSegment]) -> Iterator[Po
 
 
 def find_points_that_occur_multiple_times(all_points: Iterator):
-    return len(list(filter(lambda x: x > 1, collections.Counter(all_points).values())))
+    return len(tuple(filter(lambda x: x > 1, collections.Counter(all_points).values())))
 
 
 def get_next_point(old_point: Point, gradient: Tuple[float, float]) -> Point:
