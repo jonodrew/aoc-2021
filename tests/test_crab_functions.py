@@ -1,7 +1,7 @@
 from typing import Iterator
 
 import pytest
-from day_07.crab_functions import calculate_fuel, calculate_minimum_fuel_slowly
+from day_07.crab_functions import calculate_total_fuel, calculate_minimum_fuel_slowly
 
 
 @pytest.fixture
@@ -14,8 +14,12 @@ def test_data_generator() -> Iterator[int]:
 
 
 def test_calculate_fuel(test_data):
-    assert calculate_fuel(test_data, 2) == 37
+    assert calculate_total_fuel(test_data, 2) == 37
 
 
 def test_slow_calculation():
     assert calculate_minimum_fuel_slowly(test_data_generator) == 37
+
+
+def test_slow_calculation_exponential():
+    assert calculate_minimum_fuel_slowly(test_data_generator, True) == 168
