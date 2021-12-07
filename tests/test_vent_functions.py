@@ -25,8 +25,8 @@ def test_generate_all_integer_points(string_to_parse, partial_coord, partial_val
 
 
 def test_find_points_that_occur_multiple_times():
-    assert solve_part_one("test_data_05.txt") == 5
+    assert solve_part_one("data/test_data_05.txt") == 5
 
 
 def test_solve_part_two():
-    assert solve_part_two("test_data_05.txt") == 12
+    assert solve_part_two("data/test_data_05.txt") == 12
