@@ -37,3 +37,12 @@ def partition(predicate: Callable[[Iterator], bool], iterator: Iterator[Any]) ->
     """
     t1, t2 = itertools.tee(iterator)
     return filter(predicate, t2), itertools.filterfalse(predicate, t1)
+
+
+def counter_wrapper(func):
+    def wrapper():
+        iterable = func()
+        for i, value in enumerate(iterable):
+            print(f"{func.__name__} yields the {i}th value: {value}")
+            yield value
+    return wrapper
