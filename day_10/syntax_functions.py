@@ -1,6 +1,6 @@
 import functools
 import statistics
-from typing import List, Union, Iterator, Callable, Tuple
+from typing import Union, Iterator, Callable, Tuple
 
 
 def feed_input() -> Iterator[str]:
@@ -9,7 +9,9 @@ def feed_input() -> Iterator[str]:
             yield line.strip()
 
 
-def find_first_incorrect_closer_or_complete(line: Iterator[str], opening_list: Tuple = ()) -> str:
+def find_first_incorrect_closer_or_complete(line: Iterator[str], opening_list: Union[Tuple, None] = None) -> str:
+    if opening_list is None:
+        opening_list = tuple()
     pairs = {"{": "}", "[": "]", "(": ")", "<": ">"}
     try:
         next_char = next(line)
@@ -38,12 +40,12 @@ def get_all_incorrect_closers_or_completers(input_func: Callable[[], Iterator[st
     return map(find_first_incorrect_closer_or_complete, map(iter, input_func()))
 
 
-def score_errors(input_func: Callable[[], List[str]]) -> int:
+def score_errors(input_func: Callable[[], Iterator[str]]) -> int:
     return score(input_func, error_score_algorithm, lambda char: len(char) == 1)
 
 
-def score_autocomplete(input_func: Callable[[], List[str]]) -> int:
-    score_lines = list(filter(lambda char: len(char) > 1, get_all_incorrect_closers_or_completers(input_func)))
+def score_autocomplete(input_func: Callable[[], Iterator[str]]) -> int:
+    score_lines = tuple(filter(lambda char: len(char) > 1, get_all_incorrect_closers_or_completers(input_func)))
     return statistics.median(map(functools.partial(autocomplete_score_algorithm, 0), score_lines))
 
 
@@ -63,7 +65,7 @@ def error_score_algorithm(current_score: int, char_to_score: str) -> int:
     return current_score + score_dict.get(char_to_score, 0)
 
 
-def score(input_func: Callable[[], List[str]], calc_score_func: Callable[[int, str], int],
+def score(input_func: Callable[[], Iterator[str]], calc_score_func: Callable[[int, str], int],
           filter_func: Callable[[str], bool]) -> int:
     score_lines = filter(filter_func, get_all_incorrect_closers_or_completers(input_func))
     return functools.reduce(calc_score_func, score_lines, 0)

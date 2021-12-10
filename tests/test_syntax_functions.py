@@ -29,7 +29,7 @@ def mock_input_func():
     ]
 )
 def test_find_first_incorrect_closer(line, expected):
-    assert ''.join(find_first_incorrect_closer_or_complete(iter(line), [])) == expected
+    assert ''.join(find_first_incorrect_closer_or_complete(iter(line))) == expected
 
 
 def test_score_errors(mock_input_func):
