@@ -38,14 +38,8 @@ def generate_neighbour_coords(coordinates: Tuple[int, int], grid_func) -> Iterat
     return filter(functools.partial(check_on_map, grid_height(grid_func), grid_length(grid_func)), iter([(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]))
 
 
-def get_non_nine_neighbours(grid_func, coord: Tuple[int, int]) -> List[Tuple[int, int]]:
-    filter_func = functools.partial(check_on_map, len(grid_func()), len(grid_func()[0]))
-    neighbour_coords = filter(filter_func, generate_neighbour_coords(coord, grid_func))
-    return list(
-        filter(
-            lambda new_coord: grid_func()[new_coord[1]][new_coord[0]] != 9, neighbour_coords
-        )
-    )
+def get_non_nine_neighbours(grid_func, coord: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
+    return filter(lambda new_coord: get_value(grid_func, new_coord) != 9, generate_neighbour_coords(coord, grid_func))
 
 
 def is_local_minimum(grid_func, coord: Tuple[int, int]) -> bool:
