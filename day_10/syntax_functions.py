@@ -1,5 +1,4 @@
 import functools
-import itertools
 import statistics
 from typing import List, Union, Iterator, Callable, Tuple
 
