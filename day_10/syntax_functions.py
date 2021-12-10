@@ -1,7 +1,7 @@
 import functools
 import itertools
 import statistics
-from typing import List, Union, Iterator, Callable
+from typing import List, Union, Iterator, Callable, Tuple
 
 
 def feed_input() -> Iterator[str]:
@@ -10,23 +10,24 @@ def feed_input() -> Iterator[str]:
             yield line.strip()
 
 
-def find_first_incorrect_closer_or_complete(line: Iterator[str], opening_list: List[Union[None, str]] = []) -> str:
+def find_first_incorrect_closer_or_complete(line: Iterator[str], opening_list: Tuple = ()) -> str:
     pairs = {"{": "}", "[": "]", "(": ")", "<": ">"}
     try:
         next_char = next(line)
     except StopIteration:
         return ''.join(map(lambda char: pairs.get(char), reversed(opening_list)))
     if next_char in pairs.keys():
-        opening_list.append(next_char)
+        new_opening_list = (*opening_list, next_char)
     else:
-        last_opener = opening_list.pop()
+        last_opener = opening_list[-1]
+        new_opening_list = opening_list[:-1]
         if pairs.get(last_opener) != next_char:
             return next_char
-    return find_first_incorrect_closer_or_complete(line, opening_list)
+    return find_first_incorrect_closer_or_complete(line, new_opening_list)
 
 
 def get_all_incorrect_closers_or_completers(input_func: Callable[[], Iterator[str]]) -> Iterator[str]:
-    return map(lambda line: find_first_incorrect_closer_or_complete(line, []), map(iter, input_func()))
+    return map(lambda line: find_first_incorrect_closer_or_complete(line), map(iter, input_func()))
 
 
 def finder_generator():
