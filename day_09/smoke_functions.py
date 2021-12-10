@@ -60,7 +60,7 @@ def find_minima(grid_func: Callable[[], Iterator[Iterator[int]]]) -> FrozenSet[T
 
 
 def calculate_total_risk_levels(minima: FrozenSet[Tuple[int, int]], grid_func) -> int:
-    return sum(map(lambda x: 1 + x, (grid_func()[y][x] for x, y in minima)))
+    return sum(map(lambda x: 1 + x, (get_value(grid_func, (x, y)) for x, y in minima)))
 
 
 def find_basin_size(grid_func, points_to_check: Iterator[Tuple[int, int]], basin_size: int = 0,
