@@ -27,11 +27,7 @@ def find_first_incorrect_closer_or_complete(line: Iterator[str], opening_list: T
 
 
 def get_all_incorrect_closers_or_completers(input_func: Callable[[], Iterator[str]]) -> Iterator[str]:
-    return map(lambda line: find_first_incorrect_closer_or_complete(line), map(iter, input_func()))
-
-
-def finder_generator():
-    return functools.partial(find_first_incorrect_closer_or_complete, [])
+    return map(find_first_incorrect_closer_or_complete, map(iter, input_func()))
 
 
 def score_errors(input_func: Callable[[], List[str]]) -> int:
