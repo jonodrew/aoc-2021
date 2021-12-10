@@ -69,15 +69,11 @@ def find_basin_size(grid_func, points_to_check: Iterator[Tuple[int, int]], basin
         next_point = next(points_to_check)
     except StopIteration:
         return basin_size
-    already_checked = frozenset((*already_checked, next_point))
-    points_to_check = itertools.chain(
-        points_to_check, iter(get_non_nine_neighbours(grid_func, next_point))
-    )
-    all_points = filter(
-        functools.partial(next_coord_not_in_already_checked, already_checked),
-        points_to_check,
-    )
-    return find_basin_size(grid_func, all_points, len(already_checked), already_checked)
+    new_checked = frozenset((*already_checked, next_point))
+    new_checked_func = functools.partial(next_coord_not_in_already_checked, new_checked)
+    next_points = filter(new_checked_func, get_non_nine_neighbours(grid_func, next_point))
+    points_to_check = itertools.chain(points_to_check, next_points)
+    return find_basin_size(grid_func, points_to_check, len(new_checked), new_checked)
 
 
 @functools.lru_cache
