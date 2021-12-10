@@ -12,8 +12,6 @@ test_grid = lambda: ((2, 1, 9, 9, 9, 4, 3, 2, 1, 0),
              (9, 8, 9, 9, 9, 6, 5, 6, 7, 8))
 
 
-
-
 @pytest.mark.parametrize(
         ["coord", "neighbours"],
         [

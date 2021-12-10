@@ -13,10 +13,15 @@ def grid() -> Iterator[Iterator[int]]:
 
 
 @functools.lru_cache
+def get_value(grid_func: Callable[[], Iterator[Iterator[int]]], coords: Tuple[int, int]) -> int:
+    return next((value for y, row in enumerate(grid_func()) for x, value in enumerate(row) if (x, y) == coords))
+
+
+@functools.lru_cache
 def get_neighbours(coordinates: Tuple[int, int], grid_func) -> List[int]:
     filter_func = functools.partial(check_on_map, len(grid_func()), len(grid_func()[0]))
     neighbour_coords = filter(filter_func, generate_neighbour_coords(coordinates))
-    return [grid_func()[y][x] for x, y in neighbour_coords]
+    return [get_value(grid_func, (x, y)) for x, y in neighbour_coords]
 
 
 @functools.lru_cache
