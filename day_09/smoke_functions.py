@@ -1,7 +1,7 @@
 import functools
 import itertools
 import operator
-from typing import Tuple, List, Iterator, FrozenSet, Callable
+from typing import Tuple, Iterator, FrozenSet, Callable
 
 import helpers
 
@@ -56,6 +56,8 @@ def find_minima(grid_func: Callable[[], Iterator[Iterator[int]]]) -> FrozenSet[T
         if is_local_minimum(grid_func, coord):
             local_minima = frozenset((*local_minima, coord))
             skip_coords = frozenset((*skip_coords, *generate_neighbour_coords(coord, grid_func)))
+            # Maria thought of this! Given any local minimum, we know that none of its neighbours can be minima as well
+            # This reduces the number of values to check by four
     return local_minima
 
 
