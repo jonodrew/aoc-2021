@@ -16,14 +16,23 @@ def find_first_incorrect_closer_or_complete(line: Iterator[str], opening_list: T
         next_char = next(line)
     except StopIteration:
         return ''.join(map(lambda char: pairs.get(char), reversed(opening_list)))
-    if next_char in pairs.keys():
-        new_opening_list = (*opening_list, next_char)
+    incorrect_char, new_opening = process_char(next_char, opening_list)
+    if incorrect_char:
+        return incorrect_char
     else:
-        last_opener = opening_list[-1]
-        new_opening_list = opening_list[:-1]
-        if pairs.get(last_opener) != next_char:
-            return next_char
-    return find_first_incorrect_closer_or_complete(line, new_opening_list)
+        return find_first_incorrect_closer_or_complete(line, new_opening)
+
+
+def process_char(char: str, opening_tuple: Tuple) -> Tuple[Union[str, None], Union[None, Tuple]]:
+    pairs = {"{": "}", "[": "]", "(": ")", "<": ">"}
+    if char in pairs.keys():
+        new_opening_tuple = (*opening_tuple, char)
+    else:
+        last_opener = opening_tuple[-1]
+        new_opening_tuple = opening_tuple[:-1]
+        if pairs.get(last_opener) != char:
+            return char, None
+    return None, new_opening_tuple
 
 
 def get_all_incorrect_closers_or_completers(input_func: Callable[[], Iterator[str]]) -> Iterator[str]:
@@ -55,7 +64,7 @@ def error_score_algorithm(current_score: int, char_to_score: str) -> int:
     return current_score + score_dict.get(char_to_score, 0)
 
 
-def score(input_func: Callable[[], List[str]], calc_score_func: Callable[[int, str], int], filter_func: Callable[[str], bool]) -> int:
+def score(input_func: Callable[[], List[str]], calc_score_func: Callable[[int, str], int],
+          filter_func: Callable[[str], bool]) -> int:
     score_lines = filter(filter_func, get_all_incorrect_closers_or_completers(input_func))
     return functools.reduce(calc_score_func, score_lines, 0)
-
