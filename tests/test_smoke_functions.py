@@ -5,11 +5,14 @@ import pytest
 from day_09.smoke_functions import get_neighbours, find_minima, find_basin_size, find_three_largest_and_get_product, \
     find_all_basin_sizes
 
-test_grid = lambda: ((2, 1, 9, 9, 9, 4, 3, 2, 1, 0),
-             (3, 9, 8, 7, 8, 9, 4, 9, 2, 1),
-             (9, 8, 5, 6, 7, 8, 9, 8, 9, 2),
-             (8, 7, 6, 7, 8, 9, 6, 7, 8, 9),
-             (9, 8, 9, 9, 9, 6, 5, 6, 7, 8))
+
+def mock_grid():
+    test_grid = ((2, 1, 9, 9, 9, 4, 3, 2, 1, 0),
+                         (3, 9, 8, 7, 8, 9, 4, 9, 2, 1),
+                         (9, 8, 5, 6, 7, 8, 9, 8, 9, 2),
+                         (8, 7, 6, 7, 8, 9, 6, 7, 8, 9),
+                         (9, 8, 9, 9, 9, 6, 5, 6, 7, 8))
+    return ((x for x in line) for line in test_grid)
 
 
 @pytest.mark.parametrize(
@@ -19,11 +22,11 @@ test_grid = lambda: ((2, 1, 9, 9, 9, 4, 3, 2, 1, 0),
         ]
     )
 def test_get_neighbours(coord, neighbours):
-    assert list(get_neighbours(coord, test_grid)) == neighbours
+    assert list(get_neighbours(coord, mock_grid)) == neighbours
 
 
 def test_find_minima():
-    assert find_minima(test_grid) == frozenset({(1, 0), (9, 0), (2, 2), (6, 4)})
+    assert find_minima(mock_grid) == frozenset({(1, 0), (9, 0), (2, 2), (6, 4)})
 
 
 @pytest.mark.parametrize(
@@ -33,15 +36,15 @@ def test_find_minima():
         )
     )
 def test_find_basin_size(minimum, basin_size):
-    assert find_basin_size(test_grid, iter((minimum,))) == basin_size
+    assert find_basin_size(mock_grid, iter((minimum,))) == basin_size
 
 
 def test_find_all_basin_sizes():
-    assert list(find_all_basin_sizes(test_grid)) == [3, 9, 9, 14]
+    assert list(find_all_basin_sizes(mock_grid)) == [3, 9, 9, 14]
 
 
 def test_find_three_largest_and_get_product():
-    assert find_three_largest_and_get_product(test_grid) == 1134
+    assert find_three_largest_and_get_product(mock_grid) == 1134
 
 
 
