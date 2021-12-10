@@ -5,13 +5,11 @@ from typing import Tuple, List, Iterator, FrozenSet, Callable
 
 
 @functools.lru_cache
-def grid() -> List[List[int]]:
+def grid() -> Iterator[Iterator[int]]:
     with open(
             "/Users/jonathankerr/projects/aoc-2021/day_09/data.txt"
     ) as heights_grid_file:
-        return [
-            [int(x) for x in line.strip()] for line in heights_grid_file.readlines()
-        ]
+        return ((int(x) for x in line.strip()) for line in heights_grid_file.readlines())
 
 
 @functools.lru_cache
