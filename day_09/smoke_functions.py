@@ -30,9 +30,9 @@ def check_on_map(grid_height: int, grid_length: int, coords: Tuple[int, int]) ->
 
 
 @functools.lru_cache
-def generate_neighbour_coords(coordinates: Tuple[int, int]) -> List[Tuple[int, int]]:
+def generate_neighbour_coords(coordinates: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
     x, y = coordinates
-    return [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+    return iter([(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)])
 
 
 @functools.lru_cache
