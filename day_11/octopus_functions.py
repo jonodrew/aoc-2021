@@ -22,12 +22,29 @@ def grid_max_index():
     return 9
 
 
-def get_octopus(flat_grid: Iterator[Octopus], coords: Tuple[int, int]) -> Octopus:
-    return next(filter(lambda octopus: (octopus.x, octopus.y) == coords, flat_grid))
+def new_octopus_from_old(old_octopus: Octopus, features) -> Octopus:
+    attributes = ("x", "y", "active", "flashes", "level")
+    return Octopus(**{key: features.get(key, getattr(old_octopus, key)) for key in attributes})
 
 
-def flashers(flat_grid: Iterator[Octopus]) -> Iterator[Octopus]:
-    return filter(lambda octopus: octopus.level > 9 and octopus.active, flat_grid)
+def reset_to_active(old_octopus: Octopus) -> Octopus:
+    return new_octopus_from_old(old_octopus, {"active": True})
+
+
+def combine_dicts(first_dict: Dict[Tuple[int, int], int], second_dict: Dict[Tuple[int, int], int]) -> Dict[Tuple[int, int], int]:
+    combined_dict = {**first_dict, **second_dict}
+    for key, value in combined_dict.items():
+        if key in first_dict and key in second_dict:
+            combined_dict[key] = first_dict[key] + second_dict[key]
+    return combined_dict
+
+
+def reduce_frozen_set_to_dict(impacted_dict: Union[None, Dict[Tuple[int, int], int]], impacted_frozenset: FrozenSet) -> Dict[Tuple[int, int], int]:
+    new_impacted = {coords: 1 for coords in impacted_frozenset}
+    if impacted_dict is None:
+        return new_impacted
+    else:
+        return combine_dicts(new_impacted, impacted_dict)
 
 
 def impacted_by_single_flash(current_impact: Union[Dict[Tuple[int, int], int], None], next_flasher: Octopus) -> Dict[Tuple[int, int], int]:
@@ -41,25 +58,12 @@ def all_octopus_coords_impacted_by_flashers(current_flashers: Iterator[Octopus])
     return functools.reduce(impacted_by_single_flash, current_flashers, None)
 
 
-def combine_dicts(first_dict: Dict[Tuple[int, int], int], second_dict: Dict[Tuple[int, int], int]) -> Dict[Tuple[int, int], int]:
-    combined_dict = {**first_dict, **second_dict}
-    for key, value in combined_dict.items():
-        if key in first_dict and key in second_dict:
-            combined_dict[key] = first_dict[key] + second_dict[key]
-    return combined_dict
-
-
-def increase_by_one(octopus: Octopus) -> Octopus:
+def increase_level_by_one(octopus: Octopus) -> Octopus:
     return new_octopus_from_old(octopus, {"level": octopus.level + 1})
 
 
-def increase_all_by_one(flat_grid: Iterator[Octopus]):
-    return map(increase_by_one, flat_grid)
-
-
-def new_octopus_from_old(old_octopus: Octopus, features) -> Octopus:
-    attributes = ("x", "y", "active", "flashes", "level")
-    return Octopus(**{key: features.get(key, getattr(old_octopus, key)) for key in attributes})
+def increase_all_octopus_levels_by_one(flat_grid: Iterator[Octopus]):
+    return map(increase_level_by_one, flat_grid)
 
 
 def process_octopus(octopus: Octopus) -> Tuple[Octopus, FrozenSet[Tuple[int, int]]]:
@@ -88,11 +92,11 @@ def apply_impact(impact_coords: Dict[Tuple[int, int], int], old_octopus: Octopus
 
 
 def generate_new_octopuses_after_impacts(old_octopuses: Iterator[Octopus]) -> Iterator[Octopus]:
-    new_octos, impacted_coords = generate_new_octopuses_and_all_impacted(old_octopuses)
+    new_octopuses, impacted_coords = generate_new_octopuses_and_all_impacted(old_octopuses)
     if not impacted_coords:
-        return new_octos
+        return new_octopuses
     else:
-        return generate_new_octopuses_after_impacts(map(functools.partial(apply_impact, impacted_coords), new_octos))
+        return generate_new_octopuses_after_impacts(map(functools.partial(apply_impact, impacted_coords), new_octopuses))
 
 
 def recursively_process_flashes(old_octopuses: Iterator[Octopus]) -> Iterator[Octopus]:
@@ -103,12 +107,8 @@ def recursively_process_flashes(old_octopuses: Iterator[Octopus]) -> Iterator[Oc
         return recursively_process_flashes(new_octos_continue)
 
 
-def reset_to_active(old_octopus: Octopus) -> Octopus:
-    return new_octopus_from_old(old_octopus, {"active": True})
-
-
 def step(old_octopuses: Iterator[Octopus]):
-    return map(reset_to_active, recursively_process_flashes(map(increase_by_one, old_octopuses)))
+    return map(reset_to_active, recursively_process_flashes(map(increase_level_by_one, old_octopuses)))
 
 
 def step_n_times(n: int, old_octopuses: Iterator[Octopus]) -> Iterator[Octopus]:
@@ -116,14 +116,6 @@ def step_n_times(n: int, old_octopuses: Iterator[Octopus]) -> Iterator[Octopus]:
         return old_octopuses
     else:
         return step_n_times(n-1, step(old_octopuses))
-
-
-def reduce_frozen_set_to_dict(impacted_dict: Union[None, Dict[Tuple[int, int], int]], impacted_frozenset: FrozenSet) -> Dict[Tuple[int, int], int]:
-    new_impacted = {coords: 1 for coords in impacted_frozenset}
-    if impacted_dict is None:
-        return new_impacted
-    else:
-        return combine_dicts(new_impacted, impacted_dict)
 
 
 @functools.lru_cache
@@ -134,3 +126,11 @@ def get_neighbour_coords(coords: Tuple[int, int]) -> FrozenSet[Tuple[int, int]]:
 
 def coords_on_map(coords: Tuple[int, int]) -> bool:
     return all(map(lambda coord: 0 <= coord <= grid_max_index(), coords))
+
+
+def get_first_simultaneous_flash(old_octopuses: Iterator[Octopus], step_counter: int = 0) -> int:
+    check_octopuses, continue_octopuses = itertools.tee(old_octopuses)
+    if all(map(lambda octopus: octopus.level == 0, check_octopuses)):
+        return step_counter
+    else:
+        return get_first_simultaneous_flash(step(continue_octopuses), step_counter + 1)
