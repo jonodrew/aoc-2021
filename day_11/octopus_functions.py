@@ -10,6 +10,7 @@ class Octopus:
     y: int
     level: int
     active: bool = True
+    flashes: int = 0
 
 
 def octo_grid(file_path: str = "/home/jonathan/projects/aoc-2021/day_11/data.txt") -> Iterator[Octopus]:
@@ -49,16 +50,22 @@ def combine_dicts(first_dict: Dict[Tuple[int, int], int], second_dict: Dict[Tupl
 
 
 def increase_by_one(octopus: Octopus) -> Octopus:
-    return Octopus(octopus.x, octopus.y, octopus.level + 1, octopus.active)
+    return new_octopus_from_old(octopus, {"level": octopus.level + 1})
 
 
 def increase_all_by_one(flat_grid: Iterator[Octopus]):
     return map(increase_by_one, flat_grid)
 
 
+def new_octopus_from_old(old_octopus: Octopus, features) -> Octopus:
+    attributes = ("x", "y", "active", "flashes", "level")
+    return Octopus(**{key: features.get(key, getattr(old_octopus, key)) for key in attributes})
+
+
 def process_octopus(octopus: Octopus) -> Tuple[Octopus, FrozenSet[Tuple[int, int]]]:
     if octopus.level > 9 and octopus.active:
-        return Octopus(octopus.x, octopus.y, level=0, active=False), get_neighbour_coords((octopus.x, octopus.y))
+        return new_octopus_from_old(octopus, {"active": False, "flashes": octopus.flashes + 1,
+                                              "level": 0}), get_neighbour_coords((octopus.x, octopus.y))
     else:
         return octopus, frozenset()
 
@@ -74,7 +81,8 @@ def generate_new_octopuses_and_all_impacted(old_octopuses: Iterator[Octopus]) ->
 
 def apply_impact(impact_coords: Dict[Tuple[int, int], int], old_octopus: Octopus) -> Octopus:
     if old_octopus.active:
-        return Octopus(old_octopus.x, old_octopus.y, old_octopus.level + impact_coords.get((old_octopus.x, old_octopus.y), 0), old_octopus.active)
+        return new_octopus_from_old(old_octopus,
+                                    {"level": old_octopus.level + impact_coords.get((old_octopus.x, old_octopus.y), 0)})
     else:
         return old_octopus
 
@@ -96,7 +104,7 @@ def recursively_process_flashes(old_octopuses: Iterator[Octopus]) -> Iterator[Oc
 
 
 def reset_to_active(old_octopus: Octopus) -> Octopus:
-    return Octopus(old_octopus.x, old_octopus.y, old_octopus.level)
+    return new_octopus_from_old(old_octopus, {"active": True})
 
 
 def step(old_octopuses: Iterator[Octopus]):
@@ -108,8 +116,6 @@ def step_n_times(n: int, old_octopuses: Iterator[Octopus]) -> Iterator[Octopus]:
         return old_octopuses
     else:
         return step_n_times(n-1, step(old_octopuses))
-
-
 
 
 def reduce_frozen_set_to_dict(impacted_dict: Union[None, Dict[Tuple[int, int], int]], impacted_frozenset: FrozenSet) -> Dict[Tuple[int, int], int]:

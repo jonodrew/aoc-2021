@@ -16,6 +16,22 @@ def small_step_zero():
             enumerate(line.strip()))
 
 
+@pytest.fixture
+def big_test_zero():
+    grid = """5483143223
+2745854711
+5264556173
+6141336146
+6357385478
+4167524645
+2176841721
+6882881134
+4846848554
+5283751526"""
+    return (Octopus(x, y, int(level)) for y, line in enumerate(grid.split("\n")) for x, level in
+            enumerate(line.strip()))
+
+
 @patch("day_11.octopus_functions.grid_max_index", return_value=4)
 class TestSmallGrid:
     @pytest.mark.parametrize(
@@ -35,4 +51,9 @@ class TestSmallGrid:
     def test_step(self,  mock_height, new_grid, steps, small_step_zero):
         assert [octo.level for octo in step_n_times(steps, small_step_zero)] == [int(level) for y, line in
                                                                   enumerate(new_grid.split("\n")) for x, level in
-                                                                  enumerate(line.strip())]
+                                                                                 enumerate(line.strip())]
+
+
+class TestBigGrid:
+    def test_total_flashes(self, big_test_zero):
+        assert sum(map(lambda octopus: octopus.flashes, step_n_times(100, big_test_zero))) == 1656
