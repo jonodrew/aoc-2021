@@ -17,12 +17,8 @@ def octo_grid(file_path: str = "/home/jonathan/projects/aoc-2021/day_11/data.txt
         return (Octopus(x, y, int(level)) for y, line in enumerate(octo_file.readlines()) for x, level in enumerate(line.strip()))
 
 
-def grid_height():
+def grid_max_index():
     return 9
-
-
-def grid_length():
-    return grid_height()
 
 
 def get_octopus(flat_grid: Iterator[Octopus], coords: Tuple[int, int]) -> Octopus:
@@ -61,7 +57,7 @@ def increase_all_by_one(flat_grid: Iterator[Octopus]):
 
 
 def process_octopus(octopus: Octopus) -> Tuple[Octopus, FrozenSet[Tuple[int, int]]]:
-    if octopus.level > 9:
+    if octopus.level > 9 and octopus.active:
         return Octopus(octopus.x, octopus.y, level=0, active=False), get_neighbour_coords((octopus.x, octopus.y))
     else:
         return octopus, frozenset()
@@ -77,16 +73,18 @@ def generate_new_octopuses_and_all_impacted(old_octopuses: Iterator[Octopus]) ->
 
 
 def apply_impact(impact_coords: Dict[Tuple[int, int], int], old_octopus: Octopus) -> Octopus:
-    return Octopus(old_octopus.x, old_octopus.y, old_octopus.level + impact_coords.get((old_octopus.x, old_octopus.y), 0), old_octopus.active)
+    if old_octopus.active:
+        return Octopus(old_octopus.x, old_octopus.y, old_octopus.level + impact_coords.get((old_octopus.x, old_octopus.y), 0), old_octopus.active)
+    else:
+        return old_octopus
 
 
 def generate_new_octopuses_after_impacts(old_octopuses: Iterator[Octopus]) -> Iterator[Octopus]:
     new_octos, impacted_coords = generate_new_octopuses_and_all_impacted(old_octopuses)
-    return map(functools.partial(apply_impact, impacted_coords), new_octos)
-
-
-def step(old_octopuses: Iterator[Octopus]):
-    return recursively_process_flashes(map(increase_by_one, old_octopuses))
+    if not impacted_coords:
+        return new_octos
+    else:
+        return generate_new_octopuses_after_impacts(map(functools.partial(apply_impact, impacted_coords), new_octos))
 
 
 def recursively_process_flashes(old_octopuses: Iterator[Octopus]) -> Iterator[Octopus]:
@@ -95,6 +93,24 @@ def recursively_process_flashes(old_octopuses: Iterator[Octopus]) -> Iterator[Oc
         return new_octos_continue
     else:
         return recursively_process_flashes(new_octos_continue)
+
+
+def reset_to_active(old_octopus: Octopus) -> Octopus:
+    return Octopus(old_octopus.x, old_octopus.y, old_octopus.level)
+
+
+def step(old_octopuses: Iterator[Octopus]):
+    return map(reset_to_active, recursively_process_flashes(map(increase_by_one, old_octopuses)))
+
+
+def step_n_times(n: int, old_octopuses: Iterator[Octopus]) -> Iterator[Octopus]:
+    if n == 0:
+        return old_octopuses
+    else:
+        return step_n_times(n-1, step(old_octopuses))
+
+
+
 
 def reduce_frozen_set_to_dict(impacted_dict: Union[None, Dict[Tuple[int, int], int]], impacted_frozenset: FrozenSet) -> Dict[Tuple[int, int], int]:
     new_impacted = {coords: 1 for coords in impacted_frozenset}
@@ -111,4 +127,4 @@ def get_neighbour_coords(coords: Tuple[int, int]) -> FrozenSet[Tuple[int, int]]:
 
 
 def coords_on_map(coords: Tuple[int, int]) -> bool:
-    return 0 <= coords[0] <= grid_height() and grid_length() >= coords[1] >= 0
+    return all(map(lambda coord: 0 <= coord <= grid_max_index(), coords))
