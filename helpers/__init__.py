@@ -1,6 +1,6 @@
 import itertools
 import os
-from typing import Generator, Iterator, Any, Callable, Tuple
+from typing import Generator, Iterator, Any, Callable, Tuple, FrozenSet
 
 
 def current_path(filename=__file__) -> str:
@@ -46,3 +46,7 @@ def counter_wrapper(func):
             print(f"{func.__name__} yields the {i}th value: {value}")
             yield value
     return wrapper
+
+
+def combine_frozensets(first: FrozenSet, second: FrozenSet) -> FrozenSet:
+    return first.union(second)

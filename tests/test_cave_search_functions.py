@@ -1,4 +1,7 @@
-from day_12.cave_search_functions import parse_line, generate_all_connections, explore_every_path
+from unittest.mock import patch
+
+from day_12.cave_search_functions import parse_line, generate_all_connections, explore_every_path, \
+    count_all_paths_when_visiting_one_small_twice
 from day_12.classes import Cave
 
 
@@ -7,7 +10,7 @@ def mock_input():
 start-b
 A-c
 A-b
-b-d"
+b-d
 A-end
 b-end"""
     for line in lines.split("\n"):
@@ -37,4 +40,10 @@ start,b,A,c,A,end
 start,b,A,end
 start,b,end"""
     expected_set = {line for line in expected.split("\n")}
-    assert {','.join((cave.name for cave in path)) for path in explore_every_path(mock_cave_map, Cave("start", False))} == expected_set
+    assert {','.join((cave.name for cave in path)) for path in
+            explore_every_path(mock_cave_map, Cave("start", False))} == expected_set
+
+
+def test_count_all_paths_when_visiting_one_small_twice():
+    with patch("day_12.cave_search_functions.feed_input", return_value=mock_input()):
+        assert count_all_paths_when_visiting_one_small_twice() == 36
