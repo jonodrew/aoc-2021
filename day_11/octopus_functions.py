@@ -3,6 +3,8 @@ import functools
 import itertools
 from typing import Iterator, Tuple, Dict, Union, FrozenSet
 
+from helpers.immutable_dict import combine_dicts, reduce_frozen_set_to_dict
+
 
 @dataclasses.dataclass(frozen=True)
 class Octopus:
@@ -41,22 +43,6 @@ def reset_to_active(old_octopus: Octopus) -> Octopus:
     :return:
     """
     return new_octopus_from_old(old_octopus, {"active": True})
-
-
-def combine_dicts(first_dict: Dict[Tuple[int, int], int], second_dict: Dict[Tuple[int, int], int]) -> Dict[Tuple[int, int], int]:
-    combined_dict = {**first_dict, **second_dict}
-    for key, value in combined_dict.items():
-        if key in first_dict and key in second_dict:
-            combined_dict[key] = first_dict[key] + second_dict[key]
-    return combined_dict
-
-
-def reduce_frozen_set_to_dict(impacted_dict: Union[None, Dict[Tuple[int, int], int]], impacted_frozenset: FrozenSet) -> Dict[Tuple[int, int], int]:
-    new_impacted = {coords: 1 for coords in impacted_frozenset}
-    if impacted_dict is None:
-        return new_impacted
-    else:
-        return combine_dicts(new_impacted, impacted_dict)
 
 
 def impacted_by_single_flash(current_impact: Union[Dict[Tuple[int, int], int], None], next_flasher: Octopus) -> Dict[Tuple[int, int], int]:
