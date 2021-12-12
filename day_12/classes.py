@@ -5,3 +5,6 @@ import dataclasses
 class Cave:
     name: str
     big: bool
+
+    def __repr__(self):
+        return self.name
