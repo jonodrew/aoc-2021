@@ -23,11 +23,23 @@ def grid_max_index():
 
 
 def new_octopus_from_old(old_octopus: Octopus, features) -> Octopus:
+    """
+    This function creates a new Octopus object from an old one, taking into account any unique features that are passed
+    via 'features'
+    :param old_octopus:
+    :param features:
+    :return:
+    """
     attributes = ("x", "y", "active", "flashes", "level")
     return Octopus(**{key: features.get(key, getattr(old_octopus, key)) for key in attributes})
 
 
 def reset_to_active(old_octopus: Octopus) -> Octopus:
+    """
+    'Resets' an Octopus object by creating a new one. Don't tell anyone!
+    :param old_octopus:
+    :return:
+    """
     return new_octopus_from_old(old_octopus, {"active": True})
 
 
