@@ -22,4 +22,4 @@ def test_pretty_print():
 #...#
 #...#
 #####"""
-    assert '\n'.join(pretty_print(follow_all_instructions(grid_of_dots(mock_input()), instructions(mock_input())))) == expected
+    assert '\n'.join((pretty_print(follow_all_instructions(grid_of_dots(mock_input()), instructions(mock_input()))))) == expected

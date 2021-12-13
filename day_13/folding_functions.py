@@ -60,10 +60,17 @@ def pretty_print(dot_grid: Iterator[Point]) -> Iterator[List[str]]:
     length = max(map(lambda point: point[0], dot_coords)) + 1
     height = max(map(lambda point: point[1], dot_coords)) + 1
     all_points = [(x, y) for y in range(height) for x in range(length)]
-    stringified = tuple(map(lambda point: '#' if point in dot_coords else '.', all_points))
-    for i in range(0, len(stringified), length):
-        yield ''.join(stringified[i:i+length])
+    stringified = map(lambda point: '#' if point in dot_coords else '.', all_points)
+    yield from map(_pretty_print, grouper(stringified, length))
 
+
+def _pretty_print(dot_grid: Iterator[str]):
+    return ''.join(dot_grid)
+
+
+def grouper(iterable, n, fillvalue=None):
+    args = [iter(iterable)] * n
+    return itertools.zip_longest(*args, fillvalue=fillvalue)
 
 def follow_all_instructions(dot_grid: Iterator[Point], instruction_feed) -> Iterator[Point]:
     try:
