@@ -1,4 +1,5 @@
 import functools
+from functools import partial
 from typing import Dict, List, Iterator, Union, Tuple, FrozenSet
 
 from day_12.classes import Cave
@@ -22,7 +23,9 @@ def parse_line(line: str) -> Dict[Cave, List[Cave]]:
 
 
 @functools.lru_cache
-def generate_all_connections(lines: Iterator[str]) -> Dict[Cave, List[Cave]]:
+def generate_all_connections(lines: Iterator[str]=None) -> Dict[Cave, List[Cave]]:
+    if lines is None:
+        lines = feed_input()
     return functools.reduce(combine_dicts, map(parse_line, lines))
 
 
@@ -30,19 +33,23 @@ def good_next_steps(all_onward_connections: List[Cave], visited: List[Cave]) -> 
     return filter(lambda next_step: next_step.big or next_step not in visited, all_onward_connections)
 
 
-def generate_new_path_and_step(cave_map: Dict[Cave, List[Cave]], current_step: Cave, visited: Union[None, List[Cave]]):
+def generate_new_step_and_paths(cave_map: Dict[Cave, List[Cave]], current_step: Cave, visited: Union[None, List[Cave]]) -> Iterator[Tuple[Cave, List[Cave]]]:
     return map(lambda step: (step, visited + [step]), good_next_steps(cave_map.get(current_step), visited))
 
 
-def explore_every_path(cave_map: Dict[Cave, List[Cave]], current_step: Cave = Cave("start", False), visited: Union[None, List[Cave]] = None) -> Iterator[List[Cave]]:
+def explore_every_path(current_step: Cave = Cave("start", False), visited: Union[None, List[Cave]] = None,
+                       map_func=generate_all_connections):
     if visited is None:
         visited = [current_step]
     if current_step.name == "end":
         yield visited
     else:
-        for step in good_next_steps(cave_map.get(current_step), visited):
-            for path in explore_every_path(cave_map, step, visited + [step]):
-                yield path
+        try:
+            next_steps, next_paths = zip(*generate_new_step_and_paths(map_func(), current_step, visited))
+            for path in map(functools.partial(explore_every_path, map_func=map_func), next_steps, next_paths):
+                yield from path
+        except ValueError as e:
+            print("No good paths - TODO!")
 
 
 def small_caves_to_duplicate(cave_data: Tuple[Cave, List[Cave]]) -> bool:
@@ -65,9 +72,12 @@ def new_map_from_canon(cave_to_add: Tuple[Cave, List[Cave]]) -> Dict[Cave, List[
     return combine_dicts(generate_all_connections(feed_input()), prime_map)
 
 
+def new_map_func(cave_to_add: Tuple[Cave, List[Cave]]) -> partial[dict[Cave, list[Cave]]]:
+    return functools.partial(new_map_from_canon, cave_to_add)
+
+
 def set_of_paths_when_visiting_one_small_twice(small_cave: Tuple[Cave, List[Cave]]):
-    this_map = new_map_from_canon(small_cave)
-    all_paths = list(explore_every_path(this_map))
+    all_paths = list(explore_every_path(map_func=new_map_func(small_cave)))
     replaced_paths = map(functools.partial(replace_prime_with_original, small_cave[0]), all_paths)
     return set_paths(map(stringify_path, replaced_paths))
 

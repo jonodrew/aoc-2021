@@ -40,8 +40,9 @@ start,b,A,c,A,end
 start,b,A,end
 start,b,end"""
     expected_set = {line for line in expected.split("\n")}
-    assert {','.join((cave.name for cave in path)) for path in
-            explore_every_path(mock_cave_map, Cave("start", False))} == expected_set
+    with patch("day_12.cave_search_functions.feed_input", return_value=mock_input()):
+        assert {','.join((cave.name for cave in path)) for path in
+                explore_every_path()} == expected_set
 
 
 def test_count_all_paths_when_visiting_one_small_twice():
