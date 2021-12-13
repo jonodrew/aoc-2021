@@ -2,7 +2,7 @@ import dataclasses
 import functools
 import itertools
 import re
-from typing import Iterator, Callable, Tuple
+from typing import Iterator, Callable, Tuple, List
 
 from day_05.vent_functions import Point
 
@@ -43,13 +43,31 @@ def reflect_all_points_in_line(instruction: Tuple[str, int], old_dot_grid: Itera
     return reflect_all_points_in_line(instruction, old_dot_grid, itertools.chain(reflected_dots, new_points))
 
 
-def fold_paper(instruction: str, dot_grid: Iterator[Point]) -> Iterator[Point]:
+def instruction_to_direction_location(instruction: str) -> Tuple[str, int]:
+    split = instruction.split("=")
+    return split[0], int(split[1])
+
+
+def follow_instruction(instruction: str, dot_grid: Iterator[Point]) -> Iterator[Point]:
     direction, location = instruction_to_direction_location(instruction)
     all_points = functools.reduce(itertools.chain, map(functools.partial(reflect_point_in_line, (direction, location)), dot_grid))
     all_points = list(all_points)
     return iter(frozenset(filter(lambda point: getattr(point, direction) < location, all_points)))
 
 
-def instruction_to_direction_location(instruction: str) -> Tuple[str, int]:
-    split = instruction.split("=")
-    return split[0], int(split[1])
+def pretty_print(dot_grid: Iterator[Point]) -> Iterator[List[str]]:
+    dot_coords = frozenset(map(lambda point: (point.x, point.y), dot_grid))
+    length = max(map(lambda point: point[0], dot_coords)) + 1
+    height = max(map(lambda point: point[1], dot_coords)) + 1
+    all_points = [(x, y) for y in range(height) for x in range(length)]
+    stringified = tuple(map(lambda point: '#' if point in dot_coords else '.', all_points))
+    for i in range(0, len(stringified), length):
+        yield ''.join(stringified[i:i+length])
+
+
+def follow_all_instructions(dot_grid: Iterator[Point], instruction_feed) -> Iterator[Point]:
+    try:
+        next_instruction = next(instruction_feed)
+    except StopIteration:
+        return dot_grid
+    return follow_all_instructions(follow_instruction(next_instruction, dot_grid), instruction_feed)
