@@ -1,8 +1,9 @@
-import dataclasses
 import functools
 import itertools
 import re
 from typing import Iterator, Callable, Tuple, List
+
+from more_itertools import grouper
 
 from day_05.vent_functions import Point
 
@@ -51,7 +52,6 @@ def instruction_to_direction_location(instruction: str) -> Tuple[str, int]:
 def follow_instruction(instruction: str, dot_grid: Iterator[Point]) -> Iterator[Point]:
     direction, location = instruction_to_direction_location(instruction)
     all_points = functools.reduce(itertools.chain, map(functools.partial(reflect_point_in_line, (direction, location)), dot_grid))
-    all_points = list(all_points)
     return iter(frozenset(filter(lambda point: getattr(point, direction) < location, all_points)))
 
 
@@ -67,10 +67,6 @@ def pretty_print(dot_grid: Iterator[Point]) -> Iterator[List[str]]:
 def _pretty_print(dot_grid: Iterator[str]):
     return ''.join(dot_grid)
 
-
-def grouper(iterable, n, fillvalue=None):
-    args = [iter(iterable)] * n
-    return itertools.zip_longest(*args, fillvalue=fillvalue)
 
 def follow_all_instructions(dot_grid: Iterator[Point], instruction_feed) -> Iterator[Point]:
     try:
