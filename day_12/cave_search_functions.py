@@ -1,6 +1,6 @@
 import functools
 from functools import partial
-from typing import Dict, List, Iterator, Union, Tuple, FrozenSet
+from typing import Dict, List, Iterator, Union, Tuple, FrozenSet, Callable
 
 from day_12.classes import Cave
 from helpers import combine_frozensets
@@ -72,7 +72,7 @@ def new_map_from_canon(cave_to_add: Tuple[Cave, List[Cave]]) -> Dict[Cave, List[
     return combine_dicts(generate_all_connections(feed_input()), prime_map)
 
 
-def new_map_func(cave_to_add: Tuple[Cave, List[Cave]]) -> partial[dict[Cave, list[Cave]]]:
+def new_map_func(cave_to_add: Tuple[Cave, List[Cave]]) -> Callable[[], Dict[Cave, List[Cave]]]:
     return functools.partial(new_map_from_canon, cave_to_add)
 
 

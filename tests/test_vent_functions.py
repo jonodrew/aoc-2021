@@ -3,6 +3,7 @@ import functools
 import pytest
 
 from day_05.vent_functions import *
+from helpers.point import Point
 
 
 def test_parse_datum():

@@ -4,11 +4,7 @@ import re
 from dataclasses import dataclass
 from typing import Tuple, Iterator
 
-
-@dataclass(frozen=True)
-class Point:
-    x: float
-    y: float
+from helpers.point import Point, construct_point_from_string
 
 
 @dataclass(frozen=True)
@@ -33,10 +29,6 @@ def vertical_or_horizontal(line: LineSegment) -> bool:
 
 def construct_line_segment_from_string_points(point_one: str, point_two: str) -> LineSegment:
     return LineSegment(*map(construct_point_from_string, (point_one, point_two)))
-
-
-def construct_point_from_string(coords_string="") -> Point:
-    return Point(*map(int, coords_string.split(",")))
 
 
 def parse_datum(vector_line: str) -> LineSegment:

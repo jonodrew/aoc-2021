@@ -5,7 +5,7 @@ from typing import Iterator, Callable, Tuple, List
 
 from more_itertools import grouper
 
-from day_05.vent_functions import Point
+from helpers.point import Point
 
 
 def feed_input(file_path: str = "./day_13/data.txt") -> Iterator[str]:
