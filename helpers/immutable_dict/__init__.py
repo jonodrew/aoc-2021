@@ -15,7 +15,7 @@ def combine_dicts(first_dict: Dict[Any, Union[int, List, Tuple]], second_dict: D
         return combine_dicts(update_dict(first_dict, new_key, new_value), second_dict)
 
 
-def update_dict(dict_to_update: Dict[Any, Union[int, List, Tuple]], key: Any, value: Union[int, List, Tuple]) -> Dict[Any, Union[int, List, Tuple]]:
+def update_dict(dict_to_update: Dict[Any, Any], key: Any, value: Any) -> Dict[Any, Any]:
     """
     This function only works with dicts whose values are `int`s, lists, or tuples.
     :param dict_to_update:
@@ -23,12 +23,13 @@ def update_dict(dict_to_update: Dict[Any, Union[int, List, Tuple]], key: Any, va
     :param value:
     :return:
     """
-    if type(value) not in (tuple, list, int):
-        raise ValueError
     if key in dict_to_update.keys():
-        return {old_key: (old_value if old_key != key else old_value + value) for old_key, old_value in dict_to_update.items()}
+        if type(value) in (tuple, list, int):
+            return {old_key: (old_value if old_key != key else old_value + value) for old_key, old_value in dict_to_update.items()}
+        else:
+            raise ValueError
     else:
-        return {**dict_to_update, key:value}
+        return {**dict_to_update, key: value}
 
 
 def reduce_frozen_set_to_dict(impacted_dict: Union[None, Dict[Tuple[int, int], int]], impacted_frozenset: FrozenSet) -> Dict[Tuple[int, int], int]:
