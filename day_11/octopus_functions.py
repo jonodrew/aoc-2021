@@ -1,6 +1,7 @@
 import dataclasses
 import functools
 import itertools
+import os
 from typing import Iterator, Tuple, Dict, Union, FrozenSet
 
 from helpers.immutable_dict import combine_dicts, reduce_frozen_set_to_dict
@@ -15,13 +16,13 @@ class Octopus:
     flashes: int = 0
 
 
-def octo_grid(file_path: str = "/home/jonathan/projects/aoc-2021/day_11/data.txt") -> Iterator[Octopus]:
+def octo_grid(file_path: str = "./day_11/data.txt") -> Iterator[Octopus]:
     with open(file_path) as octo_file:
-        return (Octopus(x, y, int(level)) for y, line in enumerate(octo_file.readlines()) for x, level in enumerate(line.strip()))
+        return [Octopus(x, y, int(level)) for y, line in enumerate(octo_file.readlines()) for x, level in enumerate(line.strip())]
 
 
 def grid_max_index():
-    return 9
+    return max([octopus.x for octopus in octo_grid()])
 
 
 def new_octopus_from_old(old_octopus: Octopus, features) -> Octopus:

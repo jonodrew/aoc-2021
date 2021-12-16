@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 
 import day_11.octopus_functions
-from day_11.octopus_functions import Octopus, step_n_times
+from day_11.octopus_functions import Octopus, step_n_times, octo_grid
 
 
 @pytest.fixture
@@ -55,9 +55,10 @@ class TestSmallGrid:
                                                                                  enumerate(line.strip())]
 
 
+@patch("day_11.octopus_functions.octo_grid", return_value=octo_grid("../day_11/data.txt"))
 class TestBigGrid:
-    def test_total_flashes(self, big_test_zero):
+    def test_total_flashes(self, real_input, big_test_zero):
         assert sum(map(lambda octopus: octopus.flashes, step_n_times(100, big_test_zero))) == 1656
 
-    def test_first_flash(self, big_test_zero):
+    def test_first_flash(self, real_input, big_test_zero):
         assert day_11.octopus_functions.get_first_simultaneous_flash(big_test_zero) == 195

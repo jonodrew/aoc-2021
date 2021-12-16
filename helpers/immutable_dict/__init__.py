@@ -32,6 +32,14 @@ def update_dict(dict_to_update: Dict[Any, Any], key: Any, value: Any) -> Dict[An
         return {**dict_to_update, key: value}
 
 
+def replace_value(dict_to_update, key, new_value):
+    if key in dict_to_update:
+        new_dict = {old_key: (old_value if old_key != key else new_value) for old_key, old_value in dict_to_update.items()}
+    else:
+        new_dict = {**dict_to_update, **{key: new_value}}
+    return new_dict
+
+
 def reduce_frozen_set_to_dict(impacted_dict: Union[None, Dict[Tuple[int, int], int]], impacted_frozenset: FrozenSet) -> Dict[Tuple[int, int], int]:
     new_impacted = {coords: 1 for coords in impacted_frozenset}
     if impacted_dict is None:
