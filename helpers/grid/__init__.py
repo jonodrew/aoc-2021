@@ -20,11 +20,13 @@ def get_grid_size(grid: Dict[Tuple[int, int], Any]) -> Tuple[int, int]:
     return get_grid_length(grid), get_grid_height(grid)
 
 
+@functools.lru_cache
 def get_neighbour_coords(coords: Tuple[int, int], grid_height: int, grid_length: int) -> FrozenSet[Tuple[int, int]]:
     x, y = coords
     return frozenset(filter(lambda new_coords: new_coords != coords and coords_on_map(new_coords, grid_length, grid_height), itertools.product(range(x-1, x+2), range(y-1, y+2))))
 
 
+@functools.lru_cache
 def real_neighbour_coords(coords: Tuple[int, int],
                           theoretical_coord_func: Callable[[Tuple[int, int]], Iterator[Tuple[int, int]]],
                           grid_size: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
@@ -33,19 +35,25 @@ def real_neighbour_coords(coords: Tuple[int, int],
     return filter(filter_func, theoretical_coord_func(coords))
 
 
+@functools.lru_cache
 def real_cardinal_coords(coords: Tuple[int, int], grid_size: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
     return real_neighbour_coords(coords, theoretical_cardinal_neighbour_coords, grid_size)
 
 
+@functools.lru_cache
 def all_theoretical_neighbour_coords(coords: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
     x, y = coords
     return filter(lambda new_coords: new_coords != coords, itertools.product(range(x - 1, x + 2), range(y - 1, y + 2)))
 
 
+@functools.lru_cache
 def theoretical_cardinal_neighbour_coords(coords: Tuple[int, int]) -> Iterator[Tuple[int, int]]:
     x, y = coords
-    return filter(lambda new_coords: new_coords[0] == x or coords[1] == y, all_theoretical_neighbour_coords(coords))
+    theoretical = all_theoretical_neighbour_coords(coords)
+    filtered = filter(lambda new_coords: new_coords[0] == x or new_coords[1] == y, theoretical)
+    return filtered
 
 
+@functools.lru_cache
 def coords_on_map(coords: Tuple[int, int], grid_length: int, grid_height: int) -> bool:
     return all([0 <= coords[0] <= grid_length, 0 <= coords[1] <= grid_height])

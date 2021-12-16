@@ -12,8 +12,6 @@ from helpers.point import Point
 @dataclasses.dataclass(frozen=True)
 class Node(Point):
     risk: int
-    cost: int = 0
-    final: bool = False
 
 
 @dataclasses.dataclass(frozen=True)
@@ -48,4 +46,4 @@ def all_nodes_with_children(grid_of_risks: Dict[Tuple[int, int], int]) -> List[N
 
 def initial_grid_of_nodes(grid_of_risks: Dict[Tuple[int, int], int]) -> Dict[Tuple[int, int], Node]:
     final_coords = get_grid_size(grid_of_risks)
-    return {coords: Node(x=coords[0], y=coords[1], risk=value, final=True if coords == final_coords else False) for coords, value in grid_of_risks.items()}
+    return {coords: Node(x=coords[0], y=coords[1], risk=value) for coords, value in grid_of_risks.items()}
