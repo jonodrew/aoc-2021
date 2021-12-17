@@ -1,7 +1,7 @@
 import pytest
 
 from day_16.decoder import read_literal_value, Operator, LiteralValue, decode_hex_to_binary, decode_value_packet, \
-    calculate_version_sum, decode_binary_packet, collect_version
+    calculate_version_sum, decode_binary_packet, evaluate_operator
 
 
 def test_read_literal_value():
@@ -15,11 +15,11 @@ def test_decode_value_packet():
 
 @pytest.mark.parametrize(
     ["hex_word", "pointer_at_end", "output"], [
-        ("38006F45291200", 49, Operator(1, 6, frozenset([LiteralValue(6, 4, 10), LiteralValue(2, 4, 20)]))),
+        ("38006F45291200", 49, Operator(1, 6, [LiteralValue(6, 4, 10), LiteralValue(2, 4, 20)])),
         ("D2FE28", 21, LiteralValue(6, 4, 2021)),
-        ("EE00D40C823060", 51, Operator(7, 3, sub_packets=frozenset([
-            LiteralValue(1, 4, 3), LiteralValue(2, 4, 1), LiteralValue(4, 4, 2)
-        ])))
+        ("EE00D40C823060", 51, Operator(7, 3, sub_packets=[
+            LiteralValue(2, 4, 1), LiteralValue(4, 4, 2), LiteralValue(1, 4, 3),
+        ]))
     ]
 )
 def test_recursively_decode_packet(hex_word, pointer_at_end, output):
@@ -43,10 +43,19 @@ def test_calculate_version_sum(packets, expected_sum):
     assert calculate_version_sum(packets) == expected_sum
 
 
-def test_collect_version():
-    test_packet = Operator(
-        1, 0, sub_packets=frozenset({
-            LiteralValue(3, 2, 12), LiteralValue(0, 4, 12)
-        })
-    )
-    assert collect_version(test_packet) == frozenset({})
+@pytest.mark.parametrize(
+    ["hex_word", "evaluation"],
+    [
+        ("C200B40A82", 3),
+        ("04005AC33890", 54),
+        ("880086C3E88112", 7),
+        ("CE00C43D881120", 9),
+        ("D8005AC2A8F0", 1),
+        ("F600BC2D8F", 0),
+        ("9C005AC2F8F0", 0),
+        ("9C0141080250320F1802104A08", 1),
+    ]
+)
+def test_evaluate_operator(hex_word, evaluation):
+    top_level_packet, pointer = decode_binary_packet(decode_hex_to_binary(hex_word))
+    assert evaluate_operator(top_level_packet).value == evaluation
