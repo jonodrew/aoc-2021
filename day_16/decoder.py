@@ -24,35 +24,63 @@ def byte_size():
     return 4
 
 
-def decode_binary_packet(packet: str) -> Tuple[Union[LiteralValue, Operator], int]:
-    headers = version_id, type_id = (decode_three_letters(packet[:3]), decode_three_letters(packet[3:6]))
-    if type_id == 4:
-        packet, pointer = decode_value_packet(packet[6:], headers)
+def get_headers(packet: str, pointer: int) -> Tuple[int, int]:
+    version_end = pointer + 3
+    typed_end = version_end + 3
+    return decode_three_letters(packet[pointer: version_end]), decode_three_letters(packet[version_end: typed_end])
+
+
+def get_operator_length_var(packet: str, pointer: int, length_id: str) -> Tuple[int, int]:
+    if length_id == "0":
+        end_var_position = pointer + 15
     else:
-        length_id = packet[6]
-        if length_id == "0":
-            sub_packet_length = int(packet[7:22], 2)
-            packet, pointer = decode_for_length(sub_packet_length, packet[22:], iter([]), headers), sub_packet_length
-        else:
-            sub_packet_count = int(packet[7:18], 2)
-            packet, pointer = decode_for_count(sub_packet_count, packet[18:], iter([]), headers, 18)
-    return packet, pointer
+        end_var_position = pointer + 11
+    return int(packet[pointer: end_var_position], 2), end_var_position
 
 
-def decode_for_count(count: int, packets: str, new_packets: Iterator[Union[LiteralValue, Operator]], headers: Tuple[int, int], pointer: int = 0) -> Tuple[Operator, int]:
+def get_operator_callable(length_id: str, packet: str,
+                          new_packets: Iterator[Union[None, Union[LiteralValue, Operator]]],
+                          pointer: int):
+    length_var, new_pointer = get_operator_length_var(packet, pointer, length_id)
+    if length_id == "0":
+        func = decode_for_length
+    else:
+        func = decode_for_count
+    return functools.partial(func, length_var, packet, new_packets, new_pointer)
+
+
+def decode_binary_packet(packet: str, pointer: int) -> Tuple[Union[LiteralValue, Operator], int]:
+    headers = version_id, type_id = get_headers(packet, pointer)
+    pointer_after_headers = pointer + 6
+    if type_id == 4:
+        decoded_packet, pointer_after_packet = decode_value_packet(packet, headers, pointer_after_headers)
+    else:
+        length_id = packet[pointer_after_headers]
+        pointer_after_length = pointer_after_headers + len(length_id)
+        operator_func = get_operator_callable(length_id, packet, iter([]), pointer_after_length)
+        decoded_packet, pointer_after_packet = operator_func(headers)
+    return decoded_packet, pointer_after_packet
+
+
+def decode_for_count(count: int, packets: str, new_packets: Iterator[Union[LiteralValue, Operator]], pointer: int,
+                     headers: Tuple[int, int]) -> Tuple[Operator, int]:
     if count == 0:
         return Operator(*headers, sub_packets=frozenset(new_packets)), pointer
     else:
-        new_packet, new_pointer = decode_binary_packet(packets)
-        return decode_for_count(count - 1, packets[new_pointer:], itertools.chain(new_packets, [new_packet]), headers, pointer + new_pointer)
+        new_packet, pointer_position = decode_binary_packet(packets, pointer)
+        return decode_for_count(count - 1, packets, itertools.chain(new_packets, [new_packet]),
+                                pointer_position, headers)
 
 
-def decode_for_length(length: int, packets: str, new_packets: Iterator[Union[LiteralValue, Operator]], headers: Tuple[int, int]) -> Operator:
+def decode_for_length(length: int, packets: str, new_packets: Iterator[Union[LiteralValue, Operator]], pointer: int,
+                      headers: Tuple[int, int]) -> Tuple[Operator, int]:
     if length == 0:
-        return Operator(*headers, sub_packets=frozenset(new_packets))
+        return Operator(*headers, sub_packets=frozenset(new_packets)), pointer
     else:
-        new_packet, new_packet_length = decode_binary_packet(packets)
-        return decode_for_length(length - new_packet_length, packets[new_packet_length:], itertools.chain(new_packets, [new_packet]),headers)
+        new_packet, pointer_position = decode_binary_packet(packets, pointer)
+        packet_length = pointer_position - pointer
+        return decode_for_length(length - packet_length, packets, itertools.chain(new_packets, [new_packet]),
+                                 pointer_position, headers)
 
 
 def decode_value_packet(packet: str, headers: Tuple[int, int], pointer: int = 6) -> Tuple[LiteralValue, int]:
@@ -69,18 +97,16 @@ def decode_three_letters(version: str) -> int:
     return int(padded, 2)
 
 
-def read_literal_value(value: str, pointer: int) -> Tuple[str, int]:
-    pointer = pointer + 5
-    if value.startswith("0"):
-        return last_four_letters(value), pointer
+def read_literal_value(value: str, indicator_var_pos: int) -> Tuple[str, int]:
+    indicator_var = value[indicator_var_pos]
+    word_start = indicator_var_pos + 1
+    word_end = word_start + 4
+    this_word = value[word_start: word_end]
+    if indicator_var == "0":
+        return this_word, word_end
     else:
-        next_chunk = value[5:]
-        new_chunk, new_pointer = read_literal_value(next_chunk, pointer)
-        return last_four_letters(value) + new_chunk, new_pointer
-
-
-def last_four_letters(chunk: str) -> str:
-    return chunk[1:5]
+        next_word, new_pointer = read_literal_value(value, word_end)
+        return this_word + next_word, new_pointer
 
 
 def calculate_version_sum(packet: Union[LiteralValue, Operator]) -> int:
