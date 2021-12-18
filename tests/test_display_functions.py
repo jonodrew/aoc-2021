@@ -1,5 +1,6 @@
-from day_08.display_functions import *
 from unittest.mock import patch
+
+from day_08.display_functions import *
 
 
 def test_parse_input():
@@ -11,7 +12,7 @@ def test_parse_input():
 
 
 def test_count_unique_numbers():
-    with open("/Users/jonathankerr/projects/aoc-2021/tests/test_data/day_08_data.txt", "r") as test_file:
+    with open("data/test_data_08.txt", "r") as test_file:
         with patch("day_08.display_functions.feed_input", return_value=test_file.readlines()):
             assert count_ones_fours_sevens_eights() == 26
 
@@ -50,6 +51,6 @@ def test_decode_display():
 
 
 def test_solve_part_two():
-    with open("/Users/jonathankerr/projects/aoc-2021/tests/test_data/day_08_data.txt", "r") as test_file:
+    with open("data/test_data_08.txt", "r") as test_file:
         with patch("day_08.display_functions.feed_input", return_value=test_file.readlines()):
             assert sum(map(int, decode_all_displays())) == 61229

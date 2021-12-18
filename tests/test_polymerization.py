@@ -37,5 +37,5 @@ def test_subtract_least_common_element_from_most(mock_input, steps, expected):
 
 
 def test_real_count():
-    with patch("day_14.polymerization.feed_input", return_value=feed_input("/Users/jonathankerr/projects/aoc-2021/day_14/data.txt")):
+    with patch("day_14.polymerization.feed_input", return_value=feed_input("../day_14/data.txt")):
         assert subtract_least_common_element_from_most(10) == 2408
